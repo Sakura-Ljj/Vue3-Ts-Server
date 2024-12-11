@@ -8,5 +8,6 @@
  */
 
 import fileRoutes from './fileRoutes'
+import authRoutes from './authRoutes'
 
-export default [...fileRoutes]
+export default [...fileRoutes, ...authRoutes]

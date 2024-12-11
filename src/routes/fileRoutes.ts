@@ -6,12 +6,18 @@
  * @FilePath: \Vue3-ts-server\src\routes\fileRoutes.ts
  * @Description:
  */
-import { uploadMarkdown } from '../contorller/fileContorller';
+import { uploadMarkdown, getMarkdown } from '../contorller/fileContorller';
 const routes: RouterParams.RouteParams[] = [
     {
         path: '/file/uploadMarkdown',
         method: 'get',
         handler: uploadMarkdown,
+        unCheckToken: true
+    },
+    {
+        path: '/file/getMarkdown',
+        method: 'get',
+        handler: getMarkdown,
         unCheckToken: true
     }
 ]
