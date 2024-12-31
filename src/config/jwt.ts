@@ -7,7 +7,7 @@
  * @Description: jwt公用方法
  */
 import jwt from 'jsonwebtoken';
-import { setValue } from '../redis';
+import redis from '../redis';
 import { getRSAPrivateKey, getRSAPublicKey } from '../utils/crypto';
 
 export const jwtExpireTime = 3600 // jwt过期时间 单位为秒
@@ -25,7 +25,7 @@ export const encode = async (payload: {[key: string]: any}) => {
     })
 
     // 存一份过期时间是token过期时间双倍的redis数据
-    setValue(payload.userId, token, (jwtExpireTime * 2))
+    redis.setValue(payload.userId, token, (jwtExpireTime * 2))
     return token
 }
 

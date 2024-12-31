@@ -11,7 +11,7 @@ import routes from '../routes'
 import { myError, DateFormat } from './commonUtils';
 import { NO_AUTH_ERROR_CODE } from '../config/errorCode';
 import { verifyToken, encode, getTokenInfo } from '../config/jwt';
-import { getValue } from '../redis';
+import redis from '../redis';
 
 const dateTime = DateFormat(new Date(), 'YYYY-MM-dd hh:mm:ss')
 
@@ -28,7 +28,7 @@ export default async (req: any, res: any, next: any) => {
     // 检测这个token是否在黑名单
     const blacklistToken = token.split('.')[2]
     if (blacklistToken) {
-        const blackValue = await getValue(blacklistToken)
+        const blackValue = await redis.getValue(blacklistToken)
         if (blackValue === 'blacklist') return res.send(myError(NO_AUTH_ERROR_CODE, 'token已失效'))
     }
 
@@ -38,7 +38,7 @@ export default async (req: any, res: any, next: any) => {
         console.log(`[${dateTime}], req start path = ${req.path}, userId = ${userId}`)
         next()
     } catch (e: any) {
-        const value = await getValue(userId)
+        const value = await redis.getValue(userId)
         if (!value) return res.send(myError(NO_AUTH_ERROR_CODE, e.name))
 
         if (e.name === 'TokenExpiredError' && value === token){

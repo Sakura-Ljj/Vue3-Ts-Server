@@ -9,5 +9,6 @@
 
 import fileRoutes from './fileRoutes'
 import authRoutes from './authRoutes'
+import userRoutes from './userRoutes';
 
-export default [...fileRoutes, ...authRoutes]
+export default [...fileRoutes, ...authRoutes, ...userRoutes]

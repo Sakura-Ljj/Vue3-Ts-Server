@@ -8,7 +8,7 @@
  */
 
 import mysql from 'mysql2/promise' // 原来的node-mysql插件跟mysql 8.0版本的连接之间有权限问题, 所以更换成了node-mysql2
-import { getValue, setValue, scanAndDel } from '../redis/index'
+import redis from '../redis'
 import databaseConfig from './mysqlConfig'
 
 export default async ({ sql, values }: {sql: string, values: any[]}) => {
@@ -16,7 +16,7 @@ export default async ({ sql, values }: {sql: string, values: any[]}) => {
     const cacheKey = `sql:${querySql}`
 
     // 获取Redis缓存
-    const cacheResult = await getValue(cacheKey)
+    const cacheResult = await redis.getValue(cacheKey)
     // Redis有数据则返回Redis的数据, 没有则请求mysql数据库
     if (cacheResult) return JSON.parse(cacheResult)
 
@@ -28,13 +28,13 @@ export default async ({ sql, values }: {sql: string, values: any[]}) => {
 
     if (Array.isArray(result)) {
         // 存入Redis缓存, 缓存时间两分钟
-        setValue(cacheKey, JSON.stringify(result), 120)
+        redis.setValue(cacheKey, JSON.stringify(result), 120)
     } else {
         // 删除跟这次更新数据有关的表的缓存
         const regex = /(?:FROM|INTO|UPDATE)\s+([^\s]+)/i;
         const match = sql.match(regex);
         if (!match?.[1]) return
-        scanAndDel(0, `*${match[1]}*`)
+        redis.scanAndDel(0, `*${match[1]}*`)
     }
 
     // 关闭数据库连接

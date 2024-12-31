@@ -2,7 +2,7 @@
  * @Author: TENCENT\v_jnnjieluo v_jnnjieluo@tencent.com
  * @Date: 2024-01-15 16:25:54
  * @LastEditors: V_JNNJIELU-PCGP\v_jnnjieluo v_jnnjieluo@tencent.com
- * @LastEditTime: 2024-12-05 10:47:24
+ * @LastEditTime: 2024-12-25 11:14:48
  * @FilePath: \Vue3-ts-server\src\redis\index.ts
  * @Description:
  */
@@ -35,57 +35,73 @@ const options = {
     }
 }
 
-// 生成redis的client
-
-const client = redis.createClient(options)
-
-// 存储值
-export const setValue = (key: string, value: any, time?: number) => {
-    if (typeof value === 'string'){
-        client.set(key, value)
-    }
-    if (typeof value === 'object'){
-        for (const item in value) {
-            client.hSet(key, item, value[item])
-        }
+class Redis {
+    client: redis.RedisClientType;
+    constructor () {
+        // 生成redis的client
+        this.client = redis.createClient(options)
+        if (!this.client.isOpen) this.connect()
     }
 
-    if (!time) return
-    client.expire(key, time)
-}
+    connect() {
+        this.client.connect().catch(err => console.log('redisErr', err))
+    }
 
+    close() {
+        this.client.quit()
+    }
 
-// 获取string
-export const getValue = (key: string) => {
-    return client.get(key)
-}
-
-// 获取hash
-export const getHValue = (key: string) => {
-    return client.hGetAll(key)
-}
-
-// 删除key
-export const delKey = (key: string) => {
-    client.del(key)
-}
-
-// 模糊删除key
-// 定义一个递归函数，用于逐步扫描并删除匹配的键
-export const scanAndDel = (cursor: number, pattern: string) => {
-    client.scan(cursor, { MATCH: pattern, COUNT: 10 }).then(res => {
-        const newCursor = res.cursor
-        const keys = res.keys
-        // 删除匹配的键
-        keys.forEach((key: string) => {
-            client.del(key);
-        });
-
-        // 如果游标不为0，继续扫描
-        if (newCursor) {
-            scanAndDel(newCursor, pattern);
-        } else {
-            console.log('Finished scanning and deleting keys.');
+    // 存储值
+    async setValue (key: string, value: any, time?: number) {
+        if (typeof value === 'string'){
+            await this.client.set(key, value)
         }
-    })
+        if (typeof value === 'object'){
+            for (const item in value) {
+                await this.client.hSet(key, item, value[item])
+            }
+        }
+
+        if (!time) return
+        await this.client.expire(key, time)
+    }
+
+
+    // 获取string
+    getValue (key: string) {
+        return this.client.get(key)
+    }
+
+    // 获取hash
+    getHValue (key: string) {
+        return this.client.hGetAll(key)
+    }
+
+    // 删除key
+    async delKey(key: string) {
+        await this.client.del(key)
+    }
+
+    // 模糊删除key
+    // 定义一个递归函数，用于逐步扫描并删除匹配的键
+    scanAndDel(cursor: number, pattern: string) {
+        this.client.scan(cursor, { MATCH: pattern, COUNT: 10 }).then(res => {
+            const newCursor = res.cursor
+            const keys = res.keys
+            // 删除匹配的键
+            keys.forEach((key: string) => {
+                this.client.del(key);
+            });
+
+            // 如果游标不为0，继续扫描
+            if (newCursor) {
+                this.scanAndDel(newCursor, pattern);
+            } else {
+                console.log('Finished scanning and deleting keys.');
+            }
+        })
+
+    }
 }
+
+export default new Redis()

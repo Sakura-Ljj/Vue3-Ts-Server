@@ -2,13 +2,13 @@
  * @Author: TENCENT\v_jnnjieluo v_jnnjieluo@tencent.com
  * @Date: 2023-07-10 17:17:29
  * @LastEditors: V_JNNJIELU-PCGP\v_jnnjieluo v_jnnjieluo@tencent.com
- * @LastEditTime: 2024-12-02 17:39:17
+ * @LastEditTime: 2024-12-25 11:33:19
  * @FilePath: \Vue3-ts-server\src\utils\crypto.ts
  * @Description: 加密解密算法
  */
 
 import crypto from 'crypto';
-import { setValue, getValue } from '../redis';
+import redis from '../redis';
 import { myError } from '../utils/commonUtils';
 import { NO_AUTH_ERROR_CODE } from '../config/errorCode';
 
@@ -51,20 +51,20 @@ export const generateRSAKey = () => {
     });
 
     // 将密钥保存到redis
-    setValue(redisPubliceKey, publicKeyStr)
-    setValue(redisPrivateKey, privateKeyStr)
+    redis.setValue(redisPubliceKey, publicKeyStr)
+    redis.setValue(redisPrivateKey, privateKeyStr)
 }
 
 // 获取公钥
 export const getRSAPublicKey = async () => {
-    const publiceKey = await getValue(redisPubliceKey)
+    const publiceKey = await redis.getValue(redisPubliceKey)
     if (!publiceKey) throw myError(NO_AUTH_ERROR_CODE, '下发token失败')
     return publiceKey
 }
 
 // 获取私钥
 export const getRSAPrivateKey = async () => {
-    const privateKey = await getValue(redisPrivateKey)
+    const privateKey = await redis.getValue(redisPrivateKey)
     if (!privateKey) throw myError(NO_AUTH_ERROR_CODE, '下发token失败')
     return privateKey
 }
