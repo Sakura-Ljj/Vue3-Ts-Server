@@ -1,3 +1,10 @@
+import { LoginFunc, RegisterFunc } from './interface/AuthInterface';
+import { encode } from '../config/jwt';
+import { pbkdf2Encrypt, pbkdf2Decrypt } from '../utils/crypto';
+import requestData from '../mysql';
+import { genRandomId, myError } from '../utils/commonUtils';
+import { REQUEST_PARAMS_ERROR_CODE } from '../config/errorCode';
+
 export const getAuthMenuList = async () => {
     return [
         {
@@ -141,4 +148,44 @@ export const getAuthMenuList = async () => {
             }
         }
     ]
+}
+
+export const registerServer: RegisterFunc = async ({ password, account }) => {
+    if (!password || !account) throw myError(REQUEST_PARAMS_ERROR_CODE, '参数有误')
+    const [accountInfo] = await requestData({
+        sql: 'select userid from account where account = ?',
+        values: [account]
+    })
+    if (accountInfo) throw myError(REQUEST_PARAMS_ERROR_CODE, '账号已存在')
+    const { result, salt } = pbkdf2Encrypt(password)
+    const userid = genRandomId()
+    const insertData = {
+        userid,
+        account,
+        password: result,
+        salt
+    }
+    await requestData({
+        sql: 'insert into account set ?',
+        values: [insertData]
+    })
+    return
+}
+
+export const loginServer: LoginFunc = async ({ password, account }) => {
+    if (!password || !account) throw myError(REQUEST_PARAMS_ERROR_CODE, '参数有误')
+    const [accountInfo] = await requestData({
+        sql: 'select password, salt, userid from account where account = ?',
+        values: [account]
+    })
+    if (!accountInfo) throw myError(REQUEST_PARAMS_ERROR_CODE, '账号不存在')
+    const verifyPassword = pbkdf2Decrypt(password, accountInfo.salt)
+    if (accountInfo.password !== verifyPassword) throw myError(REQUEST_PARAMS_ERROR_CODE, '密码错误')
+
+    // 下发token
+    const playload = {
+        userid: accountInfo.userid,
+        account: accountInfo.account
+    }
+    return encode(playload)
 }

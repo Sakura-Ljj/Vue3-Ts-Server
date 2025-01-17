@@ -24,7 +24,6 @@ export default async (req: any, res: any, next: any) => {
     const token = req.headers.token
     if (!token) return res.send(myError(NO_AUTH_ERROR_CODE, '缺少Token'))
 
-    const { userId, userAccount } = getTokenInfo(token)
     // 检测这个token是否在黑名单
     const blacklistToken = token.split('.')[2]
     if (blacklistToken) {
@@ -33,6 +32,7 @@ export default async (req: any, res: any, next: any) => {
     }
 
     // 验证token有效性
+    const { userId, userAccount } = getTokenInfo(token)
     try {
         await verifyToken(token)
         console.log(`[${dateTime}], req start path = ${req.path}, userId = ${userId}`)

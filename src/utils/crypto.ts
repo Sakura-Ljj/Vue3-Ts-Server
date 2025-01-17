@@ -2,15 +2,15 @@
  * @Author: TENCENT\v_jnnjieluo v_jnnjieluo@tencent.com
  * @Date: 2023-07-10 17:17:29
  * @LastEditors: V_JNNJIELU-PCGP\v_jnnjieluo v_jnnjieluo@tencent.com
- * @LastEditTime: 2024-12-25 11:33:19
+ * @LastEditTime: 2025-01-15 17:02:33
  * @FilePath: \Vue3-ts-server\src\utils\crypto.ts
  * @Description: 加密解密算法
  */
 
 import crypto from 'crypto';
 import redis from '../redis';
-import { myError } from '../utils/commonUtils';
-import { NO_AUTH_ERROR_CODE } from '../config/errorCode';
+// import { myError } from '../utils/commonUtils';
+// import { NO_AUTH_ERROR_CODE } from '../config/errorCode';
 
 const iterations = 4096 // 加密迭代次数
 const passwordKeylen = 64 // 生成密码的密钥长度
@@ -19,6 +19,7 @@ const digest = 'sha256' // 加密哈希函数
 const redisPubliceKey = 'publiceKey'
 const redisPrivateKey = 'privateKey'
 
+// 密码加密
 export const pbkdf2Encrypt = (password: string) => {
     const salt = crypto.randomBytes(32).toString('hex') // 生成 32 字节的随机数作为盐值
     const result = crypto.pbkdf2Sync(password, salt, iterations, passwordKeylen, digest)
@@ -29,6 +30,7 @@ export const pbkdf2Encrypt = (password: string) => {
     }
 }
 
+// 密码验证
 export const pbkdf2Decrypt = (password: string, salt: string) => {
     const result = crypto.pbkdf2Sync(password, salt, iterations, passwordKeylen, digest)
     return result.toString('hex')
@@ -56,15 +58,21 @@ export const generateRSAKey = () => {
 }
 
 // 获取公钥
-export const getRSAPublicKey = async () => {
+export const getRSAPublicKey = async (): Promise<string> => {
     const publiceKey = await redis.getValue(redisPubliceKey)
-    if (!publiceKey) throw myError(NO_AUTH_ERROR_CODE, '下发token失败')
+    if (!publiceKey) {
+        generateRSAKey()
+        return getRSAPublicKey()
+    }
     return publiceKey
 }
 
 // 获取私钥
-export const getRSAPrivateKey = async () => {
+export const getRSAPrivateKey = async (): Promise<string> => {
     const privateKey = await redis.getValue(redisPrivateKey)
-    if (!privateKey) throw myError(NO_AUTH_ERROR_CODE, '下发token失败')
+    if (!privateKey) {
+        generateRSAKey()
+        return getRSAPrivateKey()
+    }
     return privateKey
 }

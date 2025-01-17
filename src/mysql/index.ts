@@ -2,7 +2,7 @@
  * @Author: TENCENT\v_jnnjieluo v_jnnjieluo@tencent.com
  * @Date: 2023-06-25 14:53:54
  * @LastEditors: V_JNNJIELU-PCGP\v_jnnjieluo v_jnnjieluo@tencent.com
- * @LastEditTime: 2024-12-04 11:11:22
+ * @LastEditTime: 2025-01-16 11:20:40
  * @FilePath: \Vue3-ts-server\src\mysql\index.ts
  * @Description: mysql 数据库使用的封装
  */

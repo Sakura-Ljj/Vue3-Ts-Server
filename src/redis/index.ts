@@ -2,7 +2,7 @@
  * @Author: TENCENT\v_jnnjieluo v_jnnjieluo@tencent.com
  * @Date: 2024-01-15 16:25:54
  * @LastEditors: V_JNNJIELU-PCGP\v_jnnjieluo v_jnnjieluo@tencent.com
- * @LastEditTime: 2024-12-25 11:14:48
+ * @LastEditTime: 2025-01-16 11:23:09
  * @FilePath: \Vue3-ts-server\src\redis\index.ts
  * @Description:
  */
@@ -43,8 +43,9 @@ class Redis {
         if (!this.client.isOpen) this.connect()
     }
 
-    connect() {
-        this.client.connect().catch(err => console.log('redisErr', err))
+    async connect() {
+        await this.client.connect().catch(err => { console.log('redisErr', err) })
+        if (!this.client.isReady) throw 'redis is not ready'
     }
 
     close() {

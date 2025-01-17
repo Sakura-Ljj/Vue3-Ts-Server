@@ -25,7 +25,7 @@ export const encode = async (payload: {[key: string]: any}) => {
     })
 
     // 存一份过期时间是token过期时间双倍的redis数据
-    redis.setValue(payload.userId, token, (jwtExpireTime * 2))
+    redis.setValue(payload.userid, token, (jwtExpireTime * 2))
     return token
 }
 
