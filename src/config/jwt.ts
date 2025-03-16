@@ -1,9 +1,9 @@
 /*
  * @Author: DESKTOP-H44236O\Sora 1430008132@qq.com
  * @Date: 2024-01-15 23:49:24
- * @LastEditors: V_JNNJIELU-PCGP\v_jnnjieluo v_jnnjieluo@tencent.com
- * @LastEditTime: 2024-12-03 14:38:42
- * @FilePath: \Vue3-ts-server\src\config\jwt.ts
+ * @LastEditors: Sakura 1430008132@qq.com
+ * @LastEditTime: 2025-02-26 15:55:09
+ * @FilePath: \Vue3-Ts-Server\src\config\jwt.ts
  * @Description: jwt公用方法
  */
 import jwt from 'jsonwebtoken';

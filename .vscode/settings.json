@@ -1,7 +1,7 @@
 {
 	"editor.suggestSelection": "first",
 	"vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
-	"workbench.iconTheme": "eq-material-theme-icons-light",
+	"workbench.iconTheme": "vs-seti",
 	"open-in-browser.default": "\"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\"",
 	"liveServer.settings.root": "",
 	"liveServer.settings.CustomBrowser": "chrome",
@@ -64,7 +64,7 @@
 	"javascript.updateImportsOnFileMove.enabled": "always",
 
 	"editor.fontSize": 16,
-	"workbench.colorTheme": "Default Dark Modern",
+	"workbench.colorTheme": "One Dark Pro",
 	"files.autoSave": "afterDelay",
 	"editor.guides.indentation": false,
 	"eslint.codeActionsOnSave.rules": null,

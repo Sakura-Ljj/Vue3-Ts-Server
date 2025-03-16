@@ -1,9 +1,10 @@
 import { LoginFunc, RegisterFunc } from './interface/AuthInterface';
-import { encode } from '../config/jwt';
+import { encode, getTokenInfo, getTokenExpireTime } from '../config/jwt';
 import { pbkdf2Encrypt, pbkdf2Decrypt } from '../utils/crypto';
 import requestData from '../mysql';
 import { genRandomId, myError } from '../utils/commonUtils';
-import { REQUEST_PARAMS_ERROR_CODE } from '../config/errorCode';
+import { REQUEST_PARAMS_ERROR_CODE, NO_AUTH_ERROR_CODE } from '../config/errorCode';
+import redis from '../redis';
 
 export const getAuthMenuList = async () => {
     return [
@@ -185,7 +186,25 @@ export const loginServer: LoginFunc = async ({ password, account }) => {
     // 下发token
     const playload = {
         userid: accountInfo.userid,
-        account: accountInfo.account
+        account
     }
     return encode(playload)
+}
+
+export const logoutServer = async (_event: any, req: any) => {
+    const token = req.headers.token
+    if (!token) throw myError(NO_AUTH_ERROR_CODE, '缺少token')
+
+    const { userid } = getTokenInfo(token)
+    // 拿到token剩余时间, 往redis里面set这个token为黑名单, 过期时间就是token剩余过期时间
+    const time = getTokenExpireTime(token)
+    if (!time) return
+    // 设置黑名单
+    const blacklistToken = token.split('.')[2]
+    if (!blacklistToken) throw myError(NO_AUTH_ERROR_CODE, 'token格式错误')
+
+    redis.setValue(blacklistToken, 'blacklist', time)
+    // 删除这个id的token缓存
+    redis.delKey(userid)
+    return
 }

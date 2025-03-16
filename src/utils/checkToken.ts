@@ -1,9 +1,9 @@
 /*
  * @Author: DESKTOP-H44236O\Sora 1430008132@qq.com
  * @Date: 2024-01-16 21:35:55
- * @LastEditors: V_JNNJIELU-PCGP\v_jnnjieluo v_jnnjieluo@tencent.com
- * @LastEditTime: 2024-12-04 11:32:42
- * @FilePath: \Vue3-ts-server\src\utils\checkToken.ts
+ * @LastEditors: Sakura 1430008132@qq.com
+ * @LastEditTime: 2025-02-25 18:50:52
+ * @FilePath: \Vue3-Ts-Server\src\utils\checkToken.ts
  * @Description: token权限校验
  */
 
@@ -32,19 +32,20 @@ export default async (req: any, res: any, next: any) => {
     }
 
     // 验证token有效性
-    const { userId, userAccount } = getTokenInfo(token)
+    const { userid, account } = getTokenInfo(token)
     try {
         await verifyToken(token)
-        console.log(`[${dateTime}], req start path = ${req.path}, userId = ${userId}`)
+        console.log(`[${dateTime}], req start path = ${req.path}, userId = ${userid}`)
         next()
     } catch (e: any) {
-        const value = await redis.getValue(userId)
-        if (!value) return res.send(myError(NO_AUTH_ERROR_CODE, e.name))
+        const value = await redis.getValue(userid)
+        if (!value) return res.send(myError(NO_AUTH_ERROR_CODE, 'token已失效'))
 
         if (e.name === 'TokenExpiredError' && value === token){
             // token过期后并且token与redis种存储的一致的时候下发一个全新的token
-            const payload = { userId, userAccount }
-            req.token = await encode(payload)
+            const payload = { userid, account }
+            const new_token = await encode(payload)
+            res.set('new_token', new_token )
             return next()
         }
         res.send(myError(NO_AUTH_ERROR_CODE, e.name))

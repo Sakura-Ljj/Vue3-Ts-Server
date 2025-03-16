@@ -7,6 +7,7 @@ import {
     DelUserFunc
 } from './interface/UserInterface';
 import { genRandomId, DateFormat } from '../utils/commonUtils';
+import { getTokenInfo } from '../config/jwt';
 
 export const getUserList: GetUserListFunc = async ({ offset = 0, limit = 20, createTime, role, status, username }) => {
     let conditionsStr = ''
@@ -81,4 +82,13 @@ export const delUser: DelUserFunc = async (ids) => {
         values: [ids]
     })
     return
+}
+
+export const getUserInfoByToken = (_event: any, req: any) => {
+    const toekn = req.headers.token
+    const { userid } = getTokenInfo(toekn)
+    return requestData({
+        sql: 'select id, username, role, sex, idNumber, email, age from user where id = ?',
+        values: [userid]
+    })
 }

@@ -1,4 +1,4 @@
-import { getAuthMenuList, loginServer, registerServer } from '../contorller/authContorller';
+import { getAuthMenuList, loginServer, registerServer, logoutServer } from '../contorller/authContorller';
 
 const authRoutes: RouterParams.RouteParams[] = [
     {
@@ -16,6 +16,12 @@ const authRoutes: RouterParams.RouteParams[] = [
         path: '/auth/register',
         method: 'get',
         handler: registerServer,
+        unCheckToken: true
+    },
+    {
+        path: '/auth/logout',
+        method: 'get',
+        handler: logoutServer,
         unCheckToken: true
     }
 ]
